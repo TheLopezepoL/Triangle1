@@ -1,0 +1,12 @@
+let
+    var i : Integer;
+    var c : Char
+in
+    if i < 5 then
+        begin
+            i := i + 3;
+            c := 'a';
+            put(c)
+        end
+    else
+        put('z') 
