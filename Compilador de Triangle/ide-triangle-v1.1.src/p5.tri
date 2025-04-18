@@ -1,0 +1,7 @@
+putint(
+  match 5 of
+    case 2 : 28
+    otherwise : 31
+  end
+);
+put(chr(10))

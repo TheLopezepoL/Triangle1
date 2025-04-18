@@ -925,6 +925,7 @@ public class Parser {
     case Token.OPERATOR:
     case Token.LET:
     case Token.IF:
+    case Token.MATCH://///REVISAR
     case Token.LPAREN:
     case Token.LBRACKET:
     case Token.LCURLY:
