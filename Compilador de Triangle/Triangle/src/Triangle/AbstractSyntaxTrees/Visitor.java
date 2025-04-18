@@ -32,6 +32,7 @@ public interface Visitor {
   public abstract Object visitForCommand(ForCommand ast, Object o); //agregado
   public abstract Object visitRepeatCommand(RepeatCommand ast, Object o);//agregado
   public abstract Object visitGetCharCommand(GetCharCommand ast, Object o);
+  public abstract Object visitMatchCommand   (MatchCommand   ast, Object o); //agregado
   // Expressions
   public abstract Object visitArrayExpression(ArrayExpression ast, Object o);
   public abstract Object visitBinaryExpression(BinaryExpression ast, Object o);
@@ -44,7 +45,7 @@ public interface Visitor {
   public abstract Object visitRecordExpression(RecordExpression ast, Object o);
   public abstract Object visitUnaryExpression(UnaryExpression ast, Object o);
   public abstract Object visitVnameExpression(VnameExpression ast, Object o);
-
+  public abstract Object visitMatchExpression(MatchExpression ast, Object o); //agregado
   // Declarations
   public abstract Object visitBinaryOperatorDeclaration(BinaryOperatorDeclaration ast, Object o);
   public abstract Object visitConstDeclaration(ConstDeclaration ast, Object o);

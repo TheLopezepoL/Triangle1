@@ -327,6 +327,36 @@ public class Parser {
       }
     break;
     
+    case Token.MATCH: {
+        acceptIt();                           // “match”
+        accept(Token.LPAREN);                 // “(”
+        Expression exprAST = parseExpression();
+        accept(Token.RPAREN);                 // “)”
+        accept(Token.OF);                     // “of”
+
+        java.util.List<MatchCommand.Case> cases = new java.util.ArrayList<>();
+        do {
+            accept(Token.CASE);                 // “case”
+            java.util.List<Expression> labels = parseCaseLabelList();
+            accept(Token.COLON);                // “:”
+            Command branchCmd = parseSingleCommand();
+            cases.add(new MatchCommand.Case(labels, branchCmd));
+        } while (currentToken.kind == Token.CASE);
+
+        Command otherwiseCmd = null;
+        if (currentToken.kind == Token.OTHERWISE) {
+            acceptIt();                         // “otherwise”
+            accept(Token.COLON);
+            otherwiseCmd = parseSingleCommand();
+        }
+
+        accept(Token.END);                    // “end”
+        finish(commandPos);
+        commandAST = new MatchCommand(exprAST, cases, otherwiseCmd, commandPos);
+        break;
+    }
+
+    
     case Token.GETCHAR:
       acceptIt();
       accept(Token.LPAREN);
@@ -368,6 +398,17 @@ public class Parser {
 //
 ///////////////////////////////////////////////////////////////////////////////
 
+  private java.util.List<Expression> parseCaseLabelList() throws SyntaxError {
+      java.util.List<Expression> labels = new java.util.ArrayList<>();
+      // parsePrimaryExpression() maneja INTLITERAL, CHARLITERAL, etc.
+      labels.add(parsePrimaryExpression());
+      while (currentToken.kind == Token.COMMA) {
+         acceptIt();
+         labels.add(parsePrimaryExpression());
+      }
+      return labels;
+  }
+  
   Expression parseExpression() throws SyntaxError {
     Expression expressionAST = null; // in case there's a syntactic error
 
@@ -439,6 +480,32 @@ public class Parser {
         expressionAST = new IntegerExpression(ilAST, expressionPos);
       }
       break;
+      
+    case Token.MATCH: {
+        acceptIt();
+        accept(Token.LPAREN);
+        Expression targetAST = parseExpression();
+        accept(Token.RPAREN);
+        accept(Token.OF);
+        
+        java.util.List<MatchExpression.Case> cases = new java.util.ArrayList<>();
+        do {
+            accept(Token.CASE);
+            java.util.List<Expression> labels = parseCaseLabelList();
+            accept(Token.COLON);
+            Expression branchExpr = parseExpression();
+            cases.add(new MatchExpression.Case(labels, branchExpr));
+        } while (currentToken.kind == Token.CASE);
+        
+        accept(Token.OTHERWISE);
+        accept(Token.COLON);
+        Expression otherwiseExpr = parseExpression();
+        
+        accept(Token.END);
+        finish(expressionPos);
+        expressionAST = new MatchExpression(targetAST, cases, otherwiseExpr, expressionPos);
+        break;
+    }
 
     case Token.CHARLITERAL:
       {

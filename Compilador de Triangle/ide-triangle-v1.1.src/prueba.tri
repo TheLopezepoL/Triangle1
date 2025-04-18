@@ -1,0 +1,16 @@
+let  
+    func diasMes(m : Integer) : Integer ~  
+        match (m) of  
+            case 2        : 28 
+            case 4,6,9,11 : 30 
+            otherwise     : 31 
+        end 
+in 
+    begin
+        putint(diasMes(2));
+        put(chr(10));
+        putint(diasMes(4));
+        put(chr(10));
+        putint(diasMes(1));
+        put(chr(10))
+    end

@@ -34,6 +34,7 @@ import TAM.Instruction;
 import TAM.Machine;
 import Triangle.ErrorReporter;
 import Triangle.StdEnvironment;
+import Triangle.AbstractSyntaxTrees.*;
 import Triangle.AbstractSyntaxTrees.AST;
 import Triangle.AbstractSyntaxTrees.AnyTypeDenoter;
 import Triangle.AbstractSyntaxTrees.ArrayExpression;
@@ -103,6 +104,8 @@ import Triangle.AbstractSyntaxTrees.Visitor;
 import Triangle.AbstractSyntaxTrees.Vname;
 import Triangle.AbstractSyntaxTrees.VnameExpression;
 import Triangle.AbstractSyntaxTrees.WhileCommand;
+import Triangle.AbstractSyntaxTrees.MatchCommand;
+import Triangle.AbstractSyntaxTrees.MatchExpression;
 
 public final class Encoder implements Visitor {
 
@@ -171,6 +174,55 @@ public final class Encoder implements Visitor {
     emit(Machine.JUMPIFop, Machine.trueRep, Machine.CBr, loopAddr);
     return null;
   }
+  
+  private void encodeBranchCompare(Expression label, Frame frame, int destAddr) {
+    emit(Machine.LOADop,  0, frame.level, frame.size);
+    label.visit(this, frame);
+    emit(Machine.CALLop, Machine.SBr, Machine.PBr, Machine.eqDisplacement);
+    emit(Machine.JUMPIFop, Machine.trueRep, Machine.CBr, destAddr);
+  }
+  
+  //agregado
+  @Override
+  public Object visitMatchCommand(MatchCommand ast, Object o) {
+    Frame frame = (Frame) o;
+    ast.target.visit(this, frame);
+    int endLabel = nextInstrAddr;
+    for (MatchCommand.Case c : ast.cases) {
+        for (Expression lbl : c.labels) {
+            encodeBranchCompare(lbl, frame, /*dest=*/nextInstrAddr);
+        }
+        c.branch.visit(this, frame);
+        emit(Machine.JUMPop, 0, Machine.CBr, endLabel);
+    }
+    if (ast.otherwise != null) {
+        ast.otherwise.visit(this, frame);
+    }
+    return null;
+  }
+  
+  //agregado
+  @Override
+  public Object visitMatchExpression(MatchExpression ast, Object o) {
+    Frame frame = (Frame) o;
+    ast.target.visit(this, frame);
+    int endLabel = nextInstrAddr;
+    int resultAddr = frame.size;
+    emit(Machine.PUSHop, 0, 0, 1);
+    for (MatchExpression.Case c : ast.cases) {
+        for (Expression lbl : c.labels) {
+            encodeBranchCompare(lbl, frame, /*dest=*/nextInstrAddr);
+        }
+        c.branch.visit(this, frame);
+        emit(Machine.STOREop, 0, frame.level, resultAddr);
+        emit(Machine.JUMPop, 0, Machine.CBr, endLabel);
+    }
+    ast.otherwise.visit(this, frame);
+    emit(Machine.STOREop, 0, frame.level, resultAddr);
+    emit(Machine.LOADop, 0, frame.level, resultAddr);
+    return null;
+  }
+  
   //agregado
     public Object visitForCommand(ForCommand ast, Object o) {
         Frame frame = (Frame) o;

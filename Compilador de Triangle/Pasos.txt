@@ -1,0 +1,25 @@
+1. Agregar a palabras reservadas por orden alfabético en Triangle/Triangle.SyntacticAnalyzer/Token.java, también agregarlo en el tokentable.
+
+2. Agregar en el switch el case Token.palabra en Triangle/Triangle.SyntacticAnalyzer/Parser.java.
+
+3. palabraCommand en Triangle/Triangle.AbstractSyntaxTrees como nueva clase.
+
+4. Clase abstracta en Triangle/Triangle.AbstractSyntaxTrees/Visitor:
+public abstract Object visitPalabraCommand(PalabraCommand ast, Object o);
+
+5. Agregar método en Triangle/Triangle.ContextualAnalyzer/Checker.java y Triangle/Triangle.CodeGenerator/Encoder.java.
+
+6. En Triangle/Triangle.TreeDrawer/LayoutVisitor:
+public Object visitPalabraCommand(PalabraCommand ast, Object o)
+
+7. Hacer build and clean en Triangle. En el directorio de Triangle, en la carpeta dist se va a crear un archivo JAR llamado Triangle. Ese es el nuevo compilador. Copiarlo y pegarlo en la carpeta de ide-triangle.
+
+8. En IDE-Triangle/Core.Visitors/TableVisitor.java agregar el método:
+public Object visitPalabraCommand(PalabraCommand ast, Object o)
+con el mismo formato de los que ya están pero adaptado a la palabra creada (con los parámetros de la clase que se creó en el AST en el punto 3).
+
+9. En IDE-Triangle/Core.Visitors/TreeVisitor.java crear:
+public Object visitPalabraCommand(PalabraCommand ast, Object o)
+con el mismo formato de los que ya están.
+
+10. Guardar cambios y run al IDE.

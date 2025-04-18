@@ -72,6 +72,8 @@ import Triangle.AbstractSyntaxTrees.Visitor;
 import Triangle.AbstractSyntaxTrees.VnameExpression;
 import Triangle.AbstractSyntaxTrees.WhileCommand;
 import javax.swing.tree.DefaultMutableTreeNode;
+import Triangle.AbstractSyntaxTrees.MatchCommand;
+import Triangle.AbstractSyntaxTrees.MatchExpression;
 
 /**
  * Implements the Triangle Visitor interface, which is used to
@@ -130,6 +132,29 @@ public class TreeVisitor implements Visitor {
    public Object visitGetCharCommand(GetCharCommand ast, Object o) {
        return createUnary("Get Char Command", ast.V);
     }
+   
+   //agregado
+   @Override
+    public Object visitMatchCommand(MatchCommand ast, Object obj) {
+        int n = ast.cases.size();
+        switch (n) {
+            case 1:
+                return createTernary(
+                       "Match Command",
+                       ast.target,
+                       ast.cases.get(0).branch,
+                       ast.otherwise
+                );
+            default:
+                return createQuaternary(
+                       "Match Command",
+                       ast.target,
+                       ast.cases.get(0).branch,
+                       ast.cases.get(1).branch,
+                       ast.otherwise
+                );
+        }
+    }
 
     // </editor-fold>
     
@@ -177,6 +202,29 @@ public class TreeVisitor implements Visitor {
     
     public Object visitVnameExpression(VnameExpression ast, Object obj) {
         return(createUnary("Vname Expression", ast.V));
+    }
+    
+    //agregado
+    @Override
+    public Object visitMatchExpression(MatchExpression ast, Object obj) {
+        int n = ast.cases.size();
+        switch (n) {
+            case 1:
+                return createTernary(
+                        "Match Expr",
+                        ast.target,
+                        ast.cases.get(0).branch,
+                        ast.otherwise
+                );
+            default:
+                return createQuaternary(
+                        "Match Expr",
+                        ast.target,
+                        ast.cases.get(0).branch,
+                        ast.cases.get(1).branch,
+                        ast.otherwise
+                );
+        }
     }
     // </editor-fold>
     
