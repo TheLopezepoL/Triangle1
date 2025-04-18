@@ -329,10 +329,15 @@ public class Parser {
     
     case Token.MATCH: {
         acceptIt();                           // “match”
-        accept(Token.LPAREN);                 // “(”
-        Expression exprAST = parseExpression();
-        accept(Token.RPAREN);                 // “)”
-        accept(Token.OF);                     // “of”
+        Expression exprAST;
+        if (currentToken.kind == Token.LPAREN) {
+            accept(Token.LPAREN);       // “(”
+            exprAST = parseExpression();
+            accept(Token.RPAREN);       // “)”
+        } else {
+            exprAST = parseExpression();
+        }
+        accept(Token.OF);             // “of”
 
         java.util.List<MatchCommand.Case> cases = new java.util.ArrayList<>();
         do {
@@ -483,10 +488,15 @@ public class Parser {
       
     case Token.MATCH: {
         acceptIt();
-        accept(Token.LPAREN);
-        Expression targetAST = parseExpression();
-        accept(Token.RPAREN);
-        accept(Token.OF);
+        Expression targetAST;
+        if (currentToken.kind == Token.LPAREN) {
+            accept(Token.LPAREN);       // “(”
+            targetAST = parseExpression();
+            accept(Token.RPAREN);       // “)”
+        } else {
+            targetAST = parseExpression();
+        }
+        accept(Token.OF);             // “of”
         
         java.util.List<MatchExpression.Case> cases = new java.util.ArrayList<>();
         do {
