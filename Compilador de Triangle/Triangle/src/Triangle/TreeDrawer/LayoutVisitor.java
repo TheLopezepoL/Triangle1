@@ -25,6 +25,8 @@ el cuerpo del bucle y la condición de salida, con el nombre "RepeatU." lo que i
 package Triangle.TreeDrawer;
 
 import java.awt.FontMetrics;
+import java.util.ArrayList;
+import java.util.List;
 
 import Triangle.AbstractSyntaxTrees.AST;
 import Triangle.AbstractSyntaxTrees.AnyTypeDenoter;
@@ -93,6 +95,7 @@ import Triangle.AbstractSyntaxTrees.VarFormalParameter;
 import Triangle.AbstractSyntaxTrees.Visitor;
 import Triangle.AbstractSyntaxTrees.VnameExpression;
 import Triangle.AbstractSyntaxTrees.WhileCommand;
+import Triangle.AbstractSyntaxTrees.*;
 import static sun.tools.jconsole.LabeledComponent.layout;
 
 public class LayoutVisitor implements Visitor {
@@ -146,9 +149,89 @@ public Object visitForCommand(ForCommand ast, Object obj) {
 public Object visitGetCharCommand(GetCharCommand ast, Object obj) {
     return layoutUnary("GetChar", ast.V);
 } 
+
+//agregado
+@Override
+public Object visitMatchCommand(MatchCommand ast, Object obj) {
+    List<AST> children = new ArrayList<>();
+    children.add(ast.target);
+    for (MatchCommand.Case c : ast.cases) {
+        children.add(c.branch);
+    }
+    if (ast.otherwise != null) {
+        children.add(ast.otherwise);
+    }
+    switch (children.size()) {
+        case 1:
+            return layoutUnary(
+                    "MatchCommand", 
+                    children.get(0)
+            );
+        case 2:
+            return layoutBinary(
+                    "MatchCommand",
+                    children.get(0),
+                    children.get(1)
+            );
+        case 3:
+            return layoutTernary(
+                    "MatchCommand",
+                    children.get(0),
+                    children.get(1),
+                    children.get(2)
+            );
+        default:
+            return layoutQuaternary(
+                    "MatchCommand",
+                    children.get(0),
+                    children.get(1),
+                    children.get(2),
+                    children.get(3)
+            );
+    }
+}
   // Expressions
   public Object visitArrayExpression(ArrayExpression ast, Object obj) {
     return layoutUnary("ArrayExpr.", ast.AA);
+  }
+  
+  //agregado
+  @Override
+  public Object visitMatchExpression(MatchExpression ast, Object obj) {
+    List<AST> children = new ArrayList<>();
+    children.add(ast.target);
+    for (MatchExpression.Case c : ast.cases) {
+        children.add(c.branch);
+    }
+    children.add(ast.otherwise);
+    switch (children.size()) {
+        case 1:
+            return layoutUnary(
+                    "MatchExpr.",
+                    children.get(0)
+            );
+        case 2:
+            return layoutBinary(
+                    "MatchExpr.",
+                    children.get(0),
+                    children.get(1)
+            );
+        case 3:
+            return layoutTernary(
+                    "MatchExpr.",
+                    children.get(0),
+                    children.get(1),
+                    children.get(2)
+            );
+        default:
+            return layoutQuaternary(
+                    "MatchExpr.",
+                    children.get(0),
+                    children.get(1),
+                    children.get(2),
+                    children.get(3)
+            );
+    }
   }
 
   public Object visitBinaryExpression(BinaryExpression ast, Object obj) {

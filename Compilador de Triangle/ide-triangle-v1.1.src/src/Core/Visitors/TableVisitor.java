@@ -80,6 +80,9 @@ import Triangle.CodeGenerator.UnknownAddress;
 import Triangle.CodeGenerator.UnknownRoutine;
 import Triangle.CodeGenerator.UnknownValue;
 import javax.swing.table.DefaultTableModel;
+import Triangle.AbstractSyntaxTrees.MatchCommand;
+import Triangle.AbstractSyntaxTrees.MatchExpression;
+import Triangle.AbstractSyntaxTrees.Expression;
 
 /**
  * Implements the Triangle Visitor interface, which is used to
@@ -162,6 +165,23 @@ public class TableVisitor implements Visitor {
       ast.V.visit(this, null);
       return null;
   }
+  
+  //agregado
+  @Override
+  public Object visitMatchCommand(MatchCommand ast, Object o) {
+    ast.target.visit(this, null);
+    for (MatchCommand.Case c : ast.cases) {
+        for (Expression lbl : c.labels) {
+            lbl.visit(this, null);
+        }
+        c.branch.visit(this, null);
+    }
+    if (ast.otherwise != null) {
+        ast.otherwise.visit(this, null);
+    }
+    return null;
+  }
+  
   // </editor-fold>
 
   // <editor-fold defaultstate="collapsed" desc=" Expressions ">
@@ -170,6 +190,20 @@ public class TableVisitor implements Visitor {
       ast.AA.visit(this, null);
       
       return(null);
+  }
+  
+    //agregado
+  @Override
+  public Object visitMatchExpression(MatchExpression ast, Object o) {
+    ast.target.visit(this, null);
+    for (MatchExpression.Case c : ast.cases) {
+        for (Expression lbl : c.labels) {
+            lbl.visit(this, null);
+        }
+        c.branch.visit(this, null);
+    }
+    ast.otherwise.visit(this, null);
+    return null;
   }
   
   public Object visitBinaryExpression(BinaryExpression ast, Object o) { 

@@ -100,6 +100,55 @@ public final class Checker implements Visitor {
     ast.C.visit(this, null);
     return null;
   }
+  
+  // agregado
+  @Override
+  public Object visitMatchCommand(MatchCommand ast, Object o) {
+    TypeDenoter targetType = (TypeDenoter) ast.target.visit(this, null);
+    for (MatchCommand.Case c : ast.cases) {
+        for (Expression lbl : c.labels) {
+            TypeDenoter lblType = (TypeDenoter) lbl.visit(this, null);
+            if (!lblType.equals(targetType)) {
+                reporter.reportError("Etiqueta de tipo diferente al objetivo",
+                        "", lbl.position);
+            }
+        }
+        c.branch.visit(this, null);
+    }
+    if (ast.otherwise != null) {
+        ast.otherwise.visit(this, null);
+    }
+    return null;
+  }
+  
+  // agregado
+  @Override
+  public Object visitMatchExpression(MatchExpression ast, Object o) {
+    TypeDenoter targetType = (TypeDenoter) ast.target.visit(this, null);
+    TypeDenoter resultType = null;
+    for (MatchExpression.Case c : ast.cases) {
+        for (Expression lbl : c.labels) {
+            TypeDenoter lblType = (TypeDenoter) lbl.visit(this, null);
+            if (!lblType.equals(targetType)) {
+                reporter.reportError("Etiqueta de tipo diferente al objetivo",
+                        "", lbl.position);
+            }
+        }
+        TypeDenoter branchType = (TypeDenoter) c.branch.visit(this, null);
+        if (resultType == null) resultType = branchType;
+        else if (!resultType.equals(branchType)) {
+            reporter.reportError("Tipos de ramas inconsistentes",
+                    "", c.branch.position);
+        }
+    }
+    TypeDenoter othType = (TypeDenoter) ast.otherwise.visit(this, null);
+    if (!othType.equals(resultType)) {
+        reporter.reportError("Tipo de otherwise distinto a las demás ramas",
+                "", ast.otherwise.position);
+    }
+    return resultType;
+  }
+  
   //agregado
     public Object visitForCommand(ForCommand ast, Object o) {
         TypeDenoter vType = (TypeDenoter) ast.V.visit(this, null);

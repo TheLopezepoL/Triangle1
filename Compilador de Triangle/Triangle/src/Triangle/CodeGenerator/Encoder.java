@@ -34,6 +34,7 @@ import TAM.Instruction;
 import TAM.Machine;
 import Triangle.ErrorReporter;
 import Triangle.StdEnvironment;
+import Triangle.AbstractSyntaxTrees.*;
 import Triangle.AbstractSyntaxTrees.AST;
 import Triangle.AbstractSyntaxTrees.AnyTypeDenoter;
 import Triangle.AbstractSyntaxTrees.ArrayExpression;
@@ -103,6 +104,8 @@ import Triangle.AbstractSyntaxTrees.Visitor;
 import Triangle.AbstractSyntaxTrees.Vname;
 import Triangle.AbstractSyntaxTrees.VnameExpression;
 import Triangle.AbstractSyntaxTrees.WhileCommand;
+import Triangle.AbstractSyntaxTrees.MatchCommand;
+import Triangle.AbstractSyntaxTrees.MatchExpression;
 
 public final class Encoder implements Visitor {
 
@@ -171,6 +174,187 @@ public final class Encoder implements Visitor {
     emit(Machine.JUMPIFop, Machine.trueRep, Machine.CBr, loopAddr);
     return null;
   }
+  
+  private void encodeBranchCompare(Expression label, Frame frame, int destAddr) {
+    emit(Machine.LOADop,  0, frame.level, frame.size);
+    label.visit(this, frame);
+    emit(Machine.CALLop, Machine.SBr, Machine.PBr, Machine.eqDisplacement);
+    emit(Machine.JUMPIFop, Machine.trueRep, Machine.CBr, destAddr);
+  }
+  
+  //agregado
+public Object visitMatchCommand(MatchCommand ast, Object o) {
+    Frame frame = (Frame) o;
+    
+    // Evaluar la expresión a comparar y dejar el resultado en la pila
+    ast.target.visit(this, frame);
+
+    int[] jumpToEnd = new int[ast.cases.size() + (ast.otherwise != null ? 1 : 0)];
+    int jumpIndex = 0;
+
+    for (MatchCommand.Case c : ast.cases) {
+        int skipToNextCaseAddr = nextInstrAddr;
+
+        // Generar saltos condicionales para cada etiqueta
+        int[] labelJumps = new int[c.labels.size()];
+        int i = 0;
+        for (Expression lbl : c.labels) {
+            emit(Machine.LOADop, 0, frame.level, frame.size); // cargar valor del match
+            lbl.visit(this, frame);
+            emit(Machine.CALLop, Machine.SBr, Machine.PBr, Machine.eqDisplacement);
+            labelJumps[i++] = nextInstrAddr;
+            emit(Machine.JUMPIFop, Machine.trueRep, Machine.CBr, 0); // salto si igual
+        }
+
+        // Parchar todos los saltos al inicio del bloque del `case`
+        int caseStart = nextInstrAddr;
+        for (int addr : labelJumps) patch(addr, caseStart);
+
+        // Ejecutar el bloque de comandos
+        c.branch.visit(this, frame);
+
+        // Saltar al final después de ejecutar una rama
+        jumpToEnd[jumpIndex++] = nextInstrAddr;
+        emit(Machine.JUMPop, 0, Machine.CBr, 0);
+    }
+
+    // Ejecutar bloque 'otherwise' si existe
+    if (ast.otherwise != null) {
+        ast.otherwise.visit(this, frame);
+    }
+
+    // Dirección final del comando match
+    int matchEnd = nextInstrAddr;
+
+    // Parchar todos los saltos al final
+    for (int addr : jumpToEnd) patch(addr, matchEnd);
+
+    return null;
+}
+
+
+  
+  //agregado
+/*@Override
+public Object visitMatchExpression(MatchExpression ast, Object o) {
+    Frame frame = (Frame) o;
+    int baseAddr = frame.size;
+
+    // Reservar espacio: [target][result]
+    emit(Machine.PUSHop, 0, 0, 2);
+
+    // Frame extendido para reflejar la pila después del PUSH
+    Frame newFrame = new Frame(frame, 2);
+
+    // Evaluar el target y guardarlo
+    ast.target.visit(this, frame);
+    emit(Machine.STOREop, 0, newFrame.level, baseAddr); // target en baseAddr
+
+    java.util.List<Integer> jumpsToEnd = new java.util.ArrayList<>();
+
+    for (MatchExpression.Case c : ast.cases) {
+        java.util.List<Integer> labelJumps = new java.util.ArrayList<>();
+
+        for (Expression lbl : c.labels) {
+            emit(Machine.LOADop, 0, newFrame.level, baseAddr); // cargar target
+            lbl.visit(this, newFrame);
+            emit(Machine.CALLop, Machine.SBr, Machine.PBr, Machine.eqDisplacement);
+            labelJumps.add(nextInstrAddr);
+            emit(Machine.JUMPIFop, Machine.trueRep, Machine.CBr, 0);
+        }
+
+        int caseStart = nextInstrAddr;
+        for (int addr : labelJumps)
+            patch(addr, caseStart);
+
+        // Evaluar el cuerpo de la rama
+        c.branch.visit(this, newFrame);
+        emit(Machine.STOREop, 0, newFrame.level, baseAddr + 1); // guardar resultado
+        jumpsToEnd.add(nextInstrAddr);
+        emit(Machine.JUMPop, 0, Machine.CBr, 0);
+    }
+
+    // Bloque otherwise
+    ast.otherwise.visit(this, newFrame);
+    emit(Machine.STOREop, 0, newFrame.level, baseAddr + 1); // guardar resultado
+
+    int endAddr = nextInstrAddr;
+    for (int addr : jumpsToEnd)
+        patch(addr, endAddr);
+
+    // Cargar resultado final en la pila
+    emit(Machine.LOADop, 0, newFrame.level, baseAddr + 1);
+    emit(Machine.POPop, 0, 0, 2); // limpiar target y result
+
+    return Integer.valueOf(1);
+}
+*/
+
+@Override
+public Object visitMatchExpression(MatchExpression ast, Object o) {
+    Frame frame = (Frame) o;
+    int baseAddr = frame.size;
+
+    // Reservar espacio: [target][result]
+    emit(Machine.PUSHop, 0, 0, 2);
+
+    Frame newFrame = new Frame(frame, 2);
+
+    // Evaluar y guardar el target en baseAddr
+    ast.target.visit(this, frame);
+    emit(Machine.STOREop, 0, newFrame.level, baseAddr);
+
+    java.util.List<Integer> jumpsToEnd = new java.util.ArrayList<>();
+    java.util.List<Integer> jumpsToOtherwise = new java.util.ArrayList<>();
+
+    for (MatchExpression.Case c : ast.cases) {
+        java.util.List<Integer> labelJumps = new java.util.ArrayList<>();
+
+        for (Expression lbl : c.labels) {
+            emit(Machine.LOADop, 0, newFrame.level, baseAddr); // cargar target
+            lbl.visit(this, newFrame);
+            emit(Machine.CALLop, Machine.SBr, Machine.PBr, Machine.eqDisplacement);
+            labelJumps.add(nextInstrAddr);
+            emit(Machine.JUMPIFop, Machine.trueRep, Machine.CBr, 0); // saltar a rama si igual
+        }
+
+        // Si no coincidió con ninguna etiqueta, salta al siguiente grupo
+        int nextGroup = nextInstrAddr;
+        for (int addr : labelJumps) patch(addr, nextGroup);
+
+        // Ejecutar expresión de la rama
+        c.branch.visit(this, newFrame);
+        emit(Machine.STOREop, 0, newFrame.level, baseAddr + 1); // guardar resultado
+
+        // Saltar al final del match
+        jumpsToEnd.add(nextInstrAddr);
+        emit(Machine.JUMPop, 0, Machine.CBr, 0);
+    }
+
+    // Etiqueta de entrada al bloque otherwise
+    int otherwiseStart = nextInstrAddr;
+
+    // Ejecutar bloque otherwise
+    ast.otherwise.visit(this, newFrame);
+    emit(Machine.STOREop, 0, newFrame.level, baseAddr + 1);
+
+    // Parchear todos los saltos para ir al final
+    int matchEnd = nextInstrAddr;
+    for (int addr : jumpsToEnd)
+        patch(addr, matchEnd);
+
+    // Cargar el resultado final y limpiar la pila
+    emit(Machine.LOADop, 0, newFrame.level, baseAddr + 1);
+    emit(Machine.POPop, 0, 0, 2); // limpiar target y result
+
+    return Integer.valueOf(1);
+}
+
+
+
+
+
+  
   //agregado
     public Object visitForCommand(ForCommand ast, Object o) {
         Frame frame = (Frame) o;
@@ -366,7 +550,7 @@ public Object visitGetCharCommand(GetCharCommand ast, Object o) {
     }
     emit(Machine.RETURNop, valSize, 0, argsSize);
     patch(jumpAddr, nextInstrAddr);
-    return new Integer(0);
+    return Integer.valueOf(0);
   }
 
   public Object visitProcDeclaration(ProcDeclaration ast, Object o) {

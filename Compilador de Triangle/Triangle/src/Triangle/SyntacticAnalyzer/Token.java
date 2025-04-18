@@ -70,49 +70,51 @@ final class Token extends Object {
     // reserved words - must be in alphabetical order...
     ARRAY		= 4,
     BEGIN		= 5,
-    CONST		= 6,
-    DO			= 7,
-    DOWNTO              = 8, //agregado
-    ELSE		= 9,
-    END			= 10,
-    FOR                 = 11, //agregado
-    FROM                = 12, //agregado
-    FUNC                = 13,
-    GETCHAR             = 14,
-    IF			= 15,
-    IN			= 16,
-    LET			= 17,
-    MATCH               = 18,
-    OF			= 19,
-    PROC		= 20,
-    RECORD		= 21,
-    REPEAT              = 22, //agregado
-    THEN		= 23,
-    TO                  = 24, //agregado
-    TYPE		= 25,
-    UNTIL               = 26, //agregado
-    VAR			= 27,
-    WHILE		= 28,
+    CASE                = 6,    //agregado
+    CONST		= 7,
+    DO			= 8,
+    DOWNTO              = 9,    //agregado
+    ELSE		= 10,
+    END			= 11,
+    FOR                 = 12,   //agregado
+    FROM                = 13,   //agregado
+    FUNC                = 14,
+    GETCHAR             = 15,
+    IF			= 16,
+    IN			= 17,
+    LET			= 18,
+    MATCH               = 19,
+    OF			= 20,
+    OTHERWISE           = 21,   //agregado
+    PROC		= 22,
+    RECORD		= 23,
+    REPEAT              = 24,   //agregado
+    THEN		= 25,
+    TO                  = 26,   //agregado
+    TYPE		= 27,
+    UNTIL               = 28,   //agregado
+    VAR			= 29,
+    WHILE		= 30,
 
     // punctuation...
-    DOT			= 29,
-    COLON		= 30,
-    SEMICOLON	= 31,
-    COMMA		= 32,
-    BECOMES		= 33,
-    IS			= 34,
+    DOT			= 31,
+    COLON		= 32,
+    SEMICOLON           = 33,
+    COMMA		= 34,
+    BECOMES		= 35,
+    IS			= 36,
 
     // brackets...
-    LPAREN		= 35,
-    RPAREN		= 36,
-    LBRACKET	= 37,
-    RBRACKET	= 38,
-    LCURLY		= 39,
-    RCURLY		= 40,
+    LPAREN		= 37,
+    RPAREN		= 38,
+    LBRACKET            = 39,
+    RBRACKET            = 40,
+    LCURLY		= 41,
+    RCURLY		= 42,
 
     // special tokens...
-    EOT			= 41,
-    ERROR		= 42;
+    EOT			= 43,
+    ERROR		= 44;
 
   private static String[] tokenTable = new String[] {
     "<int>",
@@ -121,6 +123,7 @@ final class Token extends Object {
     "<operator>",
     "array",
     "begin",
+    "case",     //agregado
     "const",
     "do",
     "downto", //agregado
@@ -135,6 +138,7 @@ final class Token extends Object {
     "let",
     "match",
     "of",
+    "otherwise",    //agregado
     "proc",
     "record",
     "repeat", //agregado
