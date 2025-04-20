@@ -1,9 +1,27 @@
-let
-  func test(n : Integer) : Integer ~
-    match n of
-      case 3: 100
-      otherwise: 200
-    end
-in
-  putint(test(45))
-
+let
+
+
+  func test(n : Integer) : Integer ~
+
+
+    match n of
+
+
+      case 3: 100
+
+
+      otherwise: 200
+
+
+    end
+
+
+in
+
+
+  putint(test(45))
+
+
+
+
+

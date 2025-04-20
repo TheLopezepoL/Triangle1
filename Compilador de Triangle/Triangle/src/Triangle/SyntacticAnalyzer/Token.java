@@ -134,11 +134,11 @@ final class Token extends Object {
     "for", //agregado
     "from", //agregado
     "func",
-    "getchar",
+    "getchar",  // agregado
     "if",
     "in",
     "let",
-    "match",
+    "match",    // agregado
     "of",
     "otherwise",    //agregado
     "proc",
