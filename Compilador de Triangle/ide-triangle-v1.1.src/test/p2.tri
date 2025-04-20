@@ -1,0 +1,11 @@
+let
+  func uppercase (letter: Char) : Char ~
+    if (ord('a') <= ord(letter)) /\ (ord(letter) <= ord('z'))
+    then chr(ord(letter) - ord('a') + ord('A'))
+    else letter;
+  var c : Char
+in
+  repeat
+    getchar(var c);
+    put(c)
+  until uppercase(c) = 'N'

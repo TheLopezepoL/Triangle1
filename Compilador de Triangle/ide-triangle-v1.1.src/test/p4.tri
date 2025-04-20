@@ -1,0 +1,33 @@
+let
+  func diasmes(m : Integer) : Integer ~
+    match m of
+      case 2: 28
+      case 4,6,9,11: 30
+      otherwise: 31
+    end
+in
+  begin        
+    putint(diasmes(1));
+    put(chr(10));
+    putint(diasmes(2));
+    put(chr(10));
+    putint(diasmes(3));
+    put(chr(10));
+    putint(diasmes(4));
+    put(chr(10));
+    putint(diasmes(5));
+    put(chr(10));
+    putint(diasmes(6));
+    put(chr(10));
+    putint(diasmes(7));
+    put(chr(10));
+    putint(diasmes(8));
+    put(chr(10));
+    putint(diasmes(9));
+    put(chr(10));
+    putint(diasmes(10));
+    put(chr(10));
+    putint(diasmes(11));
+    put(chr(10));
+    putint(diasmes(12))    
+  end
