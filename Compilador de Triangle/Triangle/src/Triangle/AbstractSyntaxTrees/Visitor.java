@@ -102,6 +102,10 @@ public interface Visitor {
   public abstract Object visitIdentifier(Identifier ast, Object o);
   public abstract Object visitIntegerLiteral(IntegerLiteral ast, Object o);
   public abstract Object visitOperator(Operator ast, Object o);
+        
+   
+
+
 
   // Value-or-variable names
   public abstract Object visitDotVname(DotVname ast, Object o);

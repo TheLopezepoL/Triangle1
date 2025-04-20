@@ -1,0 +1,13 @@
+let
+  var n: Integer
+in
+  begin
+    n := 3;
+
+    match (n < 3) of
+      case true : putint(1)
+      case false : putint(0)
+    end;
+
+    put(chr(10))
+  end

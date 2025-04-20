@@ -1,0 +1,18 @@
+let
+  type fecha ~ 
+    record
+      d : Integer;
+      m : Integer;
+    end;
+
+  var hoy : fecha;
+  var c : Char;
+
+  func inicio(n : Integer) : Integer ~ 
+    n + 1
+in
+  for hoy.d := 3 * 10 downto inicio(3) do
+    begin
+      getchar(var c);
+      put(c)
+    end

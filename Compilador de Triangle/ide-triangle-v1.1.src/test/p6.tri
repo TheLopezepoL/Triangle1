@@ -1,0 +1,12 @@
+!let
+! var i : Integer
+!in
+! for i := 1 to 10 do
+! putint
+
+let
+ var i : Integer
+in
+ for i from 1 to 10 do
+ putint(i)
+

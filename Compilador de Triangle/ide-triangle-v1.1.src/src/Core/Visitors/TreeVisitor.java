@@ -26,6 +26,7 @@ import Triangle.AbstractSyntaxTrees.EmptyCommand;
 import Triangle.AbstractSyntaxTrees.EmptyExpression;
 import Triangle.AbstractSyntaxTrees.EmptyFormalParameterSequence;
 import Triangle.AbstractSyntaxTrees.ErrorTypeDenoter;
+import Triangle.AbstractSyntaxTrees.Expression;
 import Triangle.AbstractSyntaxTrees.ForCommand;
 import Triangle.AbstractSyntaxTrees.FuncActualParameter;
 import Triangle.AbstractSyntaxTrees.FuncDeclaration;
@@ -133,28 +134,36 @@ public class TreeVisitor implements Visitor {
        return createUnary("Get Char Command", ast.V);
     }
    
-   //agregado
-   @Override
     public Object visitMatchCommand(MatchCommand ast, Object obj) {
-        int n = ast.cases.size();
-        switch (n) {
-            case 1:
-                return createTernary(
-                       "Match Command",
-                       ast.target,
-                       ast.cases.get(0).branch,
-                       ast.otherwise
-                );
-            default:
-                return createQuaternary(
-                       "Match Command",
-                       ast.target,
-                       ast.cases.get(0).branch,
-                       ast.cases.get(1).branch,
-                       ast.otherwise
-                );
+        // Crear nodo base
+        DefaultMutableTreeNode node = new DefaultMutableTreeNode("Match Command");
+
+        // Agregar el target (lo que se evalúa)
+        node.add((DefaultMutableTreeNode) ast.target.visit(this, obj));
+
+        // Agregar todos los cases
+        for (MatchCommand.Case c : ast.cases) {
+            DefaultMutableTreeNode caseNode = new DefaultMutableTreeNode("Case");
+
+            // Agregar todas las etiquetas del case
+            for (Expression label : c.labels) {
+                caseNode.add((DefaultMutableTreeNode) label.visit(this, obj));
+            }
+
+            // Agregar el cuerpo (branch) del case
+            caseNode.add((DefaultMutableTreeNode) c.branch.visit(this, obj));
+
+            node.add(caseNode);
         }
+
+        // Agregar el otherwise si existe
+        if (ast.otherwise != null) {
+            node.add((DefaultMutableTreeNode) ast.otherwise.visit(this, obj));
+        }
+
+        return node;
     }
+
 
     // </editor-fold>
     

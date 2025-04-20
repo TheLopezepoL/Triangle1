@@ -26,15 +26,21 @@ RepeatCommand:
 
 package Triangle.ContextualAnalyzer;
 
+import TAM.Machine;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 
 import Triangle.ErrorReporter;
 import Triangle.StdEnvironment;
 import Triangle.AbstractSyntaxTrees.*;
+import Triangle.CodeGenerator.KnownAddress;
 import Triangle.SyntacticAnalyzer.SourcePosition;
 
+
 public final class Checker implements Visitor {
+    private int currentLevel = 0;
+    private int parameterDisplacement = 0;
+
 
   // Commands
 
@@ -341,21 +347,30 @@ public Object visitGetCharCommand(GetCharCommand ast, Object o) {
     return null;
   }
 
-  public Object visitFuncDeclaration(FuncDeclaration ast, Object o) {
-    ast.T = (TypeDenoter) ast.T.visit(this, null);
-    idTable.enter (ast.I.spelling, ast); // permits recursion
-    if (ast.duplicated)
-      reporter.reportError ("identifier \"%\" already declared",
-                            ast.I.spelling, ast.position);
-    idTable.openScope();
-    ast.FPS.visit(this, null);
-    TypeDenoter eType = (TypeDenoter) ast.E.visit(this, null);
-    idTable.closeScope();
-    if (! ast.T.equals(eType))
-      reporter.reportError ("body of function \"%\" has wrong type",
-                            ast.I.spelling, ast.E.position);
-    return null;
-  }
+public Object visitFuncDeclaration(FuncDeclaration ast, Object o) {
+  ast.T = (TypeDenoter) ast.T.visit(this, null);
+  idTable.enter(ast.I.spelling, ast);
+  if (ast.duplicated)
+    reporter.reportError ("identifier \"%\" already declared",
+                          ast.I.spelling, ast.position);
+
+  int savedLevel = currentLevel;
+  currentLevel++; // entrar a función
+  parameterDisplacement = 0;
+
+  idTable.openScope();
+  ast.FPS.visit(this, null); // asignará los .entity a los parámetros
+  TypeDenoter eType = (TypeDenoter) ast.E.visit(this, null);
+  idTable.closeScope();
+
+  currentLevel = savedLevel;
+
+  if (! ast.T.equals(eType))
+    reporter.reportError ("body of function \"%\" has wrong type",
+                          ast.I.spelling, ast.E.position);
+
+  return null;
+}
 
   public Object visitProcDeclaration(ProcDeclaration ast, Object o) {
     idTable.enter (ast.I.spelling, ast); // permits recursion
@@ -444,14 +459,21 @@ public Object visitGetCharCommand(GetCharCommand ast, Object o) {
 
   // Always returns null. Does not use the given object.
 
-  public Object visitConstFormalParameter(ConstFormalParameter ast, Object o) {
-    ast.T = (TypeDenoter) ast.T.visit(this, null);
-    idTable.enter(ast.I.spelling, ast);
-    if (ast.duplicated)
-      reporter.reportError ("duplicated formal parameter \"%\"",
-                            ast.I.spelling, ast.position);
-    return null;
-  }
+public Object visitConstFormalParameter(ConstFormalParameter ast, Object o) {
+  ast.T = (TypeDenoter) ast.T.visit(this, null);
+  idTable.enter(ast.I.spelling, ast);
+  if (ast.duplicated)
+    reporter.reportError ("duplicated formal parameter \"%\"",
+                          ast.I.spelling, ast.position);
+
+  // Asignar dirección en el stack al parámetro
+  ast.entity = new KnownAddress(Machine.addressSize, currentLevel, parameterDisplacement++);
+
+
+
+  return null;
+}
+
 
   public Object visitFuncFormalParameter(FuncFormalParameter ast, Object o) {
     idTable.openScope();
@@ -703,6 +725,11 @@ public Object visitGetCharCommand(GetCharCommand ast, Object o) {
       O.decl = binding;
     return binding;
   }
+
+
+
+
+
 
   // Value-or-variable names
 

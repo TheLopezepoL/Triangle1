@@ -21,30 +21,32 @@ final class Token extends Object {
   protected String spelling;
   protected SourcePosition position;
 
-  public Token(int kind, String spelling, SourcePosition position) {
-    if (kind == Token.IDENTIFIER) {
-      int currentKind = firstReservedWord;
-      boolean searching = true;
+    public Token(int kind, String spelling, SourcePosition position) {
+      if (kind == Token.IDENTIFIER) {
+        int currentKind = firstReservedWord;
+        boolean searching = true;
 
-      while (searching) {
-        int comparison = tokenTable[currentKind].compareTo(spelling);
-        if (comparison == 0) {
-          this.kind = currentKind; // Match found
-          searching = false;
-        } else if (comparison > 0 || currentKind == lastReservedWord) {
-          this.kind = Token.IDENTIFIER; // No match
-          searching = false;
-        } else {
-          currentKind++;
+        while (searching) {
+          int comparison = tokenTable[currentKind].compareTo(spelling);
+          if (comparison == 0) {
+            this.kind = currentKind; // Match found
+            searching = false;
+          } else if (comparison > 0 || currentKind == lastReservedWord) {
+            this.kind = Token.IDENTIFIER; // No match
+            searching = false;
+          } else {
+            currentKind++;
+          }
         }
+      } else {
+        this.kind = kind;
       }
-    } else
-      this.kind = kind;
 
-    this.spelling = spelling;
-    this.position = position;
+      this.spelling = spelling;
+      this.position = position;
+    }
 
-  }
+
 
 
   public static String spell (int kind) {
@@ -67,6 +69,7 @@ final class Token extends Object {
     IDENTIFIER	= 2,
     OPERATOR	= 3,
 
+
     // reserved words - must be in alphabetical order...
     ARRAY		= 4,
     BEGIN		= 5,
@@ -79,11 +82,11 @@ final class Token extends Object {
     FOR                 = 12,   //agregado
     FROM                = 13,   //agregado
     FUNC                = 14,
-    GETCHAR             = 15,
+    GETCHAR             = 15,  //agregado
     IF			= 16,
     IN			= 17,
     LET			= 18,
-    MATCH               = 19,
+    MATCH               = 19,  //agregado
     OF			= 20,
     OTHERWISE           = 21,   //agregado
     PROC		= 22,
@@ -103,7 +106,6 @@ final class Token extends Object {
     COMMA		= 34,
     BECOMES		= 35,
     IS			= 36,
-
     // brackets...
     LPAREN		= 37,
     RPAREN		= 38,

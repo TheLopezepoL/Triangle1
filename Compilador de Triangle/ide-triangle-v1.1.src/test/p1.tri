@@ -1,21 +1,2 @@
-let  
-  func diasMes(m : Integer) : Integer ~
-    if m = 2 then 28
-    else
-      if m = 4 then 30
-      else
-        if m = 6 then 30
-        else
-          if m = 9 then 30
-          else
-            if m = 11 then 30
-            else 31
-in
-  begin
-    putint(diasMes(2));
-    put(chr(10));
-    putint(diasMes(4));
-    put(chr(10));
-    putint(diasMes(1));
-    put(chr(10))
-  end
+put(uppercase('n'));
+put(10)

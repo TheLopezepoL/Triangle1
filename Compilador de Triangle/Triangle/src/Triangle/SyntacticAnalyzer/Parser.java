@@ -587,6 +587,8 @@ public class Parser {
     return expressionAST;
   }
 
+
+
   RecordAggregate parseRecordAggregate() throws SyntaxError {
     RecordAggregate aggregateAST = null; // in case there's a syntactic error
 

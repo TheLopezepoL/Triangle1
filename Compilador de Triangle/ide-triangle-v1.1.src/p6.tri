@@ -1,0 +1,13 @@
+let
+  var x: Integer
+in
+  begin
+    x := 5;
+
+    match x of
+      case 1: putint(100)
+      case 2: putint(200)
+      case 3: putint(300)
+      otherwise: putint(400)
+    end
+  end

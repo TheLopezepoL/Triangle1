@@ -1,0 +1,15 @@
+let
+  var n: Integer;
+  var r: Integer
+in
+  begin
+    n := 4;
+
+    r := match (n < 3) of
+           case true : 1
+           otherwise : 0
+         end;
+
+    putint(r);
+    put(chr(10))
+  end
