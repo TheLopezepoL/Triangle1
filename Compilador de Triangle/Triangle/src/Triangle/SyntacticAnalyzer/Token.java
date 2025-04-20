@@ -79,11 +79,11 @@ final class Token extends Object {
     FOR                 = 12,   //agregado
     FROM                = 13,   //agregado
     FUNC                = 14,
-    GETCHAR             = 15,
+    GETCHAR             = 15,   //agrgeado
     IF			= 16,
     IN			= 17,
     LET			= 18,
-    MATCH               = 19,
+    MATCH               = 19,   //agregado
     OF			= 20,
     OTHERWISE           = 21,   //agregado
     PROC		= 22,
@@ -132,11 +132,11 @@ final class Token extends Object {
     "for", //agregado
     "from", //agregado
     "func",
-    "getchar",
+    "getchar",  // agregado
     "if",
     "in",
     "let",
-    "match",
+    "match",    // agregado
     "of",
     "otherwise",    //agregado
     "proc",
